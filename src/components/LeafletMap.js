@@ -35,7 +35,7 @@ const LeafletMap = (props) => {
 
     const fetchData = async () => {
       const result = await axios(
-        `http://api.openstreetmap.org/api/0.6/map?bbox=` + bbox.bbox.join(",")
+        `https://api.openstreetmap.org/api/0.6/map?bbox=` + bbox.bbox.join(",")
       );
 
       setData(osmtogeojson(result.data));
