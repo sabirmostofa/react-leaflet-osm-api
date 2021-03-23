@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { MapContainer, TileLayer, GeoJSON, useMap } from "react-leaflet";
-
+import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
 import L from "leaflet";
-import axios from "axios";
-import osmtogeojson from "osmtogeojson";
-
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
-
 import { useSelector } from "react-redux";
-
 import DrawRectangle from "./DrawRectangle";
+import { fetchData } from "../common/api_functions";
 
 //set default icon
 let DefaultIcon = L.icon({
@@ -26,31 +21,40 @@ const LeafletMap = (props) => {
     return state.bbox;
   });
 
-  const [data, setData] = useState({});
-
+  let [data, setData] = useState({});
   useEffect(() => {
     if (!bbox || !bbox.bbox) return;
 
-    //console.log(bbox);
-
-    const fetchData = async () => {
-      const result = await axios(
-        `https://api.openstreetmap.org/api/0.6/map?bbox=` + bbox.bbox.join(",")
-      );
-
-      setData(osmtogeojson(result.data));
-    };
-
-    fetchData();
+    fetchData(bbox).then((response) => {
+      if (response && "type" in response) setData(response);
+    });
   }, [bbox]);
 
+  //Show Tooltip on features
+  const onEachFeat = (feauture, layer) => {
+    //console.log(feauture);
+    let name = "name" in feauture.properties ? feauture.properties.name : "";
+    layer.bindPopup("User: " + feauture.properties.user + "<br/>" + name);
+  };
+
   return (
-    <MapContainer center={[52.52005, 13.405]} zoom={25} scrollWheelZoom={false}>
+    <MapContainer
+      center={[52.535923713653496, 13.417981457869095]}
+      zoom={25}
+      scrollWheelZoom={true}
+    >
       <TileLayer
         attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      {"type" in data && <GeoJSON data={data} />}
+      {/* Use unique key to update data */}
+      {"type" in data && (
+        <GeoJSON
+          key={JSON.stringify(data)}
+          data={data}
+          onEachFeature={onEachFeat}
+        />
+      )}
       <DrawRectangle />
     </MapContainer>
   );

@@ -1,20 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setBbox } from "../_actions/set_bbox";
 import "leaflet-draw";
 
-var editControlAdded = false;
+const areEqual = (prevProps, nextProps) => true;
 
-const DrawRectangle = () => {
+//use memo to not rerender this component
+const DrawRectangle = React.memo((props) => {
   const dispatch = useDispatch();
-
-  var map = useMap();
-  var editableLayers = new L.FeatureGroup();
+  // const bbox = useSelector((state) => state.bbox);
+  const map = useMap();
+  const editableLayers = new L.FeatureGroup();
   map.addLayer(editableLayers);
 
-  var options = {
+  const options = {
     position: "topleft",
     draw: {
       polyline: false,
@@ -31,36 +32,27 @@ const DrawRectangle = () => {
     edit: false,
   };
 
-  var drawControl = new L.Control.Draw(options);
-  if (!editControlAdded) {
-    map.addControl(drawControl);
-    editControlAdded = true;
-  }
+  const drawControl = new L.Control.Draw(options);
+  map.addControl(drawControl);
 
   map.on(L.Draw.Event.CREATED, function (e) {
-    var type = e.layerType,
-      layer = e.layer;
-
-    if (type === "marker") {
-      layer.bindPopup("A popup!");
-    }
-
+    const layer = e.layer;
     editableLayers.clearLayers();
     editableLayers.addLayer(layer);
 
     let northEast = e.layer._bounds._northEast;
     let southWest = e.layer._bounds._southWest;
-    let LeftBottomRightTop = [
+    let leftBottomRightTop = [
       southWest.lng,
       southWest.lat,
       northEast.lng,
       northEast.lat,
     ];
 
-    dispatch(setBbox(LeftBottomRightTop));
+    dispatch(setBbox(leftBottomRightTop));
   });
 
   return null;
-};
+}, areEqual);
 
 export default DrawRectangle;

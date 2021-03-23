@@ -8,6 +8,6 @@ Features from OSM API will be shown on the map
 Libraries uses:
 React, Redux, Leaflet, leaflet-draw, axios
 
-https://app.netlify.com/sites/react-leaflet-osm-api
+https://react-leaflet-osm-api.netlify.app/
 
 ## Available Scripts
