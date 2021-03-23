@@ -5,9 +5,9 @@
 
 Features from OSM API will be shown on the map
 
+Click on a feature to view the creator and the feature name if it exists.
+
 Libraries uses:
 React, Redux, Leaflet, leaflet-draw, axios
 
 https://react-leaflet-osm-api.netlify.app/
-
-## Available Scripts
